@@ -18,9 +18,7 @@ class ViewController: UIViewController {
         let alertController = UIAlertController(title: "3 Card Monte", message: "Pick a card. Find the queen!", preferredStyle: .Alert)
         
         let firstAction = UIAlertAction(title: "Card One", style: .Default) { alert -> Void in self.youLose() }
-        
         let secondAction = UIAlertAction(title: "Card Two", style: .Destructive) { alert -> Void in self.youLose() }
-        
         let thirdAction = UIAlertAction(title: "Card Three", style: .Cancel) { alert -> Void in self.youWin() }
             
         alertController.addAction(firstAction)
@@ -53,7 +51,8 @@ class ViewController: UIViewController {
         
         self.presentViewController(alertController, animated: true, completion: nil)
     }
-
+    
+    
 
 }
 
