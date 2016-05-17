@@ -20,6 +20,7 @@ class ViewController: UIViewController{
     override func viewDidLoad() {
         super.viewDidLoad()
         setView()
+        resetTimer()
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.timerSecondTick), name: "secondTick", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.timerCompleted), name: "timerCompleted", object: nil)
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.setView), name: "timerStopped", object: nil)
@@ -42,10 +43,48 @@ class ViewController: UIViewController{
     @IBAction func startButtonTapped(sender: AnyObject) {
         if timer.isOn {
             timer.stopTimer()
+            cancelLocalNotifications()
         } else {
-            timer.startTimer(20*60)
+            timer.startTimer(15)
+            scheduleLocalNotification()
         }
         setView()
+    }
+    
+    func scheduleLocalNotification() {
+        guard let timerTime = timer.timeRemaining else {
+            return
+        }
+        let notification = UILocalNotification()
+        notification.fireDate = NSDate(timeIntervalSinceNow: timerTime)
+        notification.alertTitle = "Time's Up"
+        notification.alertBody = "Time to get up"
+        notification.category = localNotificationTag
+        
+        UIApplication.sharedApplication().scheduleLocalNotification(notification)
+    }
+    
+    func cancelLocalNotifications() {
+        guard let localNotifications = UIApplication.sharedApplication().scheduledLocalNotifications else {
+            return
+        }
+        let timerLocalNotifications = localNotifications.filter({$0.category == localNotificationTag})
+        for notification in timerLocalNotifications {
+            UIApplication.sharedApplication().cancelLocalNotification(notification)
+        }
+    }
+    
+    func resetTimer() {
+        guard let localNotifications = UIApplication.sharedApplication().scheduledLocalNotifications else {
+            return
+        }
+        let timerLocalNotifications = localNotifications.filter({$0.category == localNotificationTag})
+        guard let timerNotification = timerLocalNotifications.last,
+            fireDate = timerNotification.fireDate else {
+                return
+        }
+        timer.stopTimer()
+        timer.startTimer(fireDate.timeIntervalSinceNow)
     }
     
     func timerSecondTick() {
@@ -53,7 +92,13 @@ class ViewController: UIViewController{
     }
     
     func timerCompleted() {
-        self.setView()
+        let alertController = UIAlertController(title: "Get up!", message: "Time to move around", preferredStyle: .Alert)
+        let dismissAction = UIAlertAction(title: "Dismiss", style: .Default) { (_) in
+            self.setView()
+        }
+        alertController.addAction(dismissAction)
+        
+        presentViewController(alertController, animated: true, completion: nil)
     }
 }
 
