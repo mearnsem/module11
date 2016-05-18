@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController{
+class ViewController: UIViewController, TimerDelegate {
     
     @IBOutlet weak var timerLabel: UILabel!
     
@@ -21,9 +21,7 @@ class ViewController: UIViewController{
         super.viewDidLoad()
         setView()
         resetTimer()
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.timerSecondTick), name: "secondTick", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.timerCompleted), name: "timerCompleted", object: nil)
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(ViewController.setView), name: "timerStopped", object: nil)
+        timer.delegate = self
     }
     
     func setView() {
@@ -43,7 +41,6 @@ class ViewController: UIViewController{
     @IBAction func startButtonTapped(sender: AnyObject) {
         if timer.isOn {
             timer.stopTimer()
-            cancelLocalNotifications()
         } else {
             timer.startTimer(15)
             scheduleLocalNotification()
@@ -100,5 +97,17 @@ class ViewController: UIViewController{
         
         presentViewController(alertController, animated: true, completion: nil)
     }
+    
+    //MARK: - TimerDelegate Methods
+    
+    func timerStopped() {
+        setView()
+        cancelLocalNotifications()
+    }
+    
+    
+    
+    
+    
 }
 

@@ -11,6 +11,7 @@ import UIKit
 class Timer: NSObject {
     
     var timeRemaining: NSTimeInterval?
+    var delegate: TimerDelegate?
     
     var isOn: Bool {
         if timeRemaining != nil {
@@ -32,10 +33,10 @@ class Timer: NSObject {
         if timeRemaining > 0 {
             self.timeRemaining = timeRemaining - 1
             performSelector(#selector(Timer.secondTick), withObject: nil, afterDelay: 1)
-            NSNotificationCenter.defaultCenter().postNotificationName("secondTick", object: nil)
+            delegate?.timerSecondTick()
         } else {
             self.timeRemaining = nil
-            NSNotificationCenter.defaultCenter().postNotificationName("timerCompleted", object: nil)
+            delegate?.timerCompleted()
         }
     }
     
@@ -49,7 +50,19 @@ class Timer: NSObject {
     func stopTimer() {
         if isOn {
             timeRemaining = nil
-            NSNotificationCenter.defaultCenter().postNotificationName("timerStopped", object: nil)
+            delegate?.timerStopped()
         }
     }
 }
+
+protocol TimerDelegate {
+    func timerSecondTick()
+    func timerCompleted()
+    func timerStopped()
+}
+
+
+
+
+
+
